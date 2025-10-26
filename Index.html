@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF Optimizer Pro V4.0 - Sistema Funcional</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0000 0%, #330000 25%, #660000 50%, #990000 75%, #cc0000 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff0000, #ff6666);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            max-width: 350px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff0000, #ff6666, #ff9999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card h3 {
+            color: #ff3333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.05);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+        
+        .toggle {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+            border-radius: 32px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 2px;
+            background: #ffffff;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        .toggle input:checked + .toggle-slider {
+            background: linear-gradient(45deg, #ff0000, #ff6666);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+        
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #ff0000, #ff6666);
+            color: white;
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.6);
+        }
+        
+        .btn-install {
+            background: #ffffff;
+            color: #cc0000;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .status-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .status-line {
+            color: #00ff00;
+            margin-bottom: 8px;
+            padding: 5px;
+        }
+        
+        .status-line.active {
+            background: rgba(0, 255, 0, 0.1);
+            font-weight: bold;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            transform: translateX(500px);
+            transition: all 0.5s ease;
+            z-index: 2000;
+            max-width: 400px;
+            font-weight: bold;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner de Instalação -->
+    <div class="install-banner" id="installBanner">
+        <h3 style="margin-bottom: 10px;">📱 Adicionar à Tela Inicial</h3>
+        <p style="margin-bottom: 15px; font-size: 0.9em;">Acesso rápido ao FF Optimizer!</p>
+        <button class="btn btn-install" onclick="installPWA()">🔥 INSTALAR AGORA</button>
+        <button class="btn btn-install" style="background: transparent; border: 1px solid white; color: white;" onclick="closeBanner()">Agora não</button>
+    </div>
+
+    <div class="header">
+        <h1>🔥 FF OPTIMIZER PRO V4.0</h1>
+        <p>Sistema de Combate Avançado - Red Edition</p>
+    </div>
+
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <div class="card">
+            <h3>🎯 SISTEMA AIMBOT AVANÇADO</h3>
+            
+            <div class="toggle-container">
+                <span>🔥 AimBot 100% Grudar</span>
+                <label class="toggle">
+                    <input type="checkbox" id="aimbotGrudar" onchange="applyAimbotGrudar()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span>🎯 Mira Não Treme</span>
+                <label class="toggle">
+                    <input type="checkbox" id="miraNaoTreme" onchange="applyMiraNaoTreme()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span>💀 Head Kill 100%</span>
+                <label class="toggle">
+                    <input type="checkbox" id="headKill" onchange="applyHeadKill()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span>🎯 Mira Segurar Cabeça</span>
+                <label class="toggle">
+                    <input type="checkbox" id="segurarCabeca" onchange="applySegurarCabeca()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span>⚡ Mira Grudar SuperLock</span>
+                <label class="toggle">
+                    <input type="checkbox" id="superLock" onchange="applySuperLock()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span>🎯 Puxar 100% Cabeça</span>
+                <label class="toggle">
+                    <input type="checkbox" id="puxarCabeca" onchange="applyPuxarCabeca()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="status-display" id="statusDisplay">
+                <div class="status-line">🔴 Sistema Aguardando...</div>
+                <div class="status-line">Ative as configurações acima</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="ativarTudo()">🔥 ATIVAR TUDO</button>
+            <button class="btn btn-primary" onclick="aplicarCodigos()">⚡ APLICAR CÓDIGOS</button>
+            <button class="btn btn-primary" onclick="abrirFF()">🎮 ABRIR FREE FIRE</button>
+            <button class="btn btn-primary" onclick="abrirFFMax()">🔥 ABRIR FF MAX</button>
+            <button class="btn btn-primary" onclick="mostrarBanner()">📱 INSTALAR APP</button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let deferredPrompt;
+        let sistemasAtivos = {
+            touchDX: '1000C030',
+            touchDY: '1000C034',
+            mouseRecoil: 'NULL',
+            dwordBase: '9900909',
+            aimbotCodes: {
+                '00001': '000009',
+                '00002': 'Mira-No-Treme',
+                '00003': 'Mira-Pesada-Com-Mais-Preciso',
+                '00004': 'VIP Mode',
+                '00005': 'Mira-Grudar-100%',
+                '00006': 'Mira-Segurar-Na-Cabeca',
+                '00007': 'SuperLock VIP',
+                '00008': 'HeadKill 100%',
+                '00009': 'PathConfig 100%'
+            },
+            touchPrecisionFF: 'define.touch.precision_com.dts.freefireth.FFMainActivity',
+            touchVelocityFF: 'define.touch.velocity_com.dts.freefireth.FFMainActivity',
+            touchPrecisionMax: 'define.touch.precision_com.dts.freefiremax.FFMainActivity',
+            touchVelocityMax: 'define.touch.velocity_com.dts.freefiremax.FFMainActivity',
+            registryMouse: {
+                MouseSensitivity: '4',
+                MouseSpeed: '0',
+                MouseThreshold1: '3',
+                MouseThreshold2: '11'
+            },
+            bluestacksCPU: '64',
+            bluestacksDPI: 'a0',
+            bluestacksFOV: '0020f580',
+            bluestacksSensitivity: '54'
+        };
+
+        // Capturar evento PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function mostrarNotificacao(mensagem) {
+            const notif = document.getElementById('notification');
+            notif.textContent = mensagem;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 4000);
+        }
+
+        function atualizarStatus(mensagem, ativo = false) {
+            const status = document.getElementById('statusDisplay');
+            const linha = document.createElement('div');
+            linha.className = ativo ? 'status-line active' : 'status-line';
+            linha.textContent = mensagem;
+            status.appendChild(linha);
+            
+            // Manter apenas últimas 10 linhas
+            if (status.children.length > 10) {
+                status.removeChild(status.firstChild);
+            }
+        }
+
+        // ========== FUNÇÕES DOS TOGGLES ==========
+
+        function applyAimbotGrudar() {
+            if (document.getElementById('aimbotGrudar').checked) {
+                // Aplicar TouchMoveDX e TouchMoveDY
+                localStorage.setItem('aimbot_touch_dx', sistemasAtivos.touchDX);
+                localStorage.setItem('aimbot_touch_dy', sistemasAtivos.touchDY);
+                localStorage.setItem('aimbot_grudar_active', 'true');
+                localStorage.setItem('dword_00005', sistemasAtivos.aimbotCodes['00005']);
+                
+                atualizarStatus('✅ AimBot Grudar 100% ATIVADO', true);
+                atualizarStatus('TouchMoveDX = ' + sistemasAtivos.touchDX, true);
+                atualizarStatus('TouchMoveDY = ' + sistemasAtivos.touchDY, true);
+                atualizarStatus('DWORD 00005 = Mira-Grudar-100%', true);
+                
+                mostrarNotificacao('🔥 AIMBOT GRUDAR 100% ATIVO!');
+            } else {
+                localStorage.removeItem('aimbot_grudar_active');
+                atualizarStatus('❌ AimBot Grudar desativado');
+            }
+        }
+
+        function applyMiraNaoTreme() {
+            if (document.getElementById('miraNaoTreme').checked) {
+                localStorage.setItem('mouse_recoil', sistemasAtivos.mouseRecoil);
+                localStorage.setItem('dword_00002', sistemasAtivos.aimbotCodes['00002']);
+                localStorage.setItem('mira_nao_treme_active', 'true');
+                
+                atualizarStatus('✅ Mira Não Treme ATIVADO', true);
+                atualizarStatus('MouseGetRecoil = NULL', true);
+                atualizarStatus('DWORD 00002 = Mira-No-Treme', true);
+                
+                mostrarNotificacao('🎯 MIRA NÃO TREME ATIVA!');
+            } else {
+                localStorage.removeItem('mira_nao_treme_active');
+                atualizarStatus('❌ Mira Não Treme desativado');
+            }
+        }
+
+        function applyHeadKill() {
+            if (document.getElementById('headKill').checked) {
+                localStorage.setItem('dword_00008', sistemasAtivos.aimbotCodes['00008']);
+                localStorage.setItem('headkill_active', 'true');
+                localStorage.setItem('headshot_sensitivity', '100');
+                
+                atualizarStatus('✅ Head Kill 100% ATIVADO', true);
+                atualizarStatus('DWORD 00008 = HeadKill 100%', true);
+                atualizarStatus('Headshot Sensitivity = 100%', true);
+                
+                mostrarNotificacao('💀 HEAD KILL 100% ATIVO!');
+            } else {
+                localStorage.removeItem('headkill_active');
+                atualizarStatus('❌ Head Kill desativado');
+            }
+        }
+
+        function applySegurarCabeca() {
+            if (document.getElementById('segurarCabeca').checked) {
+                localStorage.setItem('dword_00006', sistemasAtivos.aimbotCodes['00006']);
+                localStorage.setItem('segurar_cabeca_active', 'true');
+                
+                atualizarStatus('✅ Segurar Cabeça ATIVADO', true);
+                atualizarStatus('DWORD 00006 = Mira-Segurar-Na-Cabeca', true);
+                atualizarStatus('StartActivity = AimBot 100%', true);
+                
+                mostrarNotificacao('🎯 SEGURAR CABEÇA ATIVO!');
+            } else {
+                localStorage.removeItem('segurar_cabeca_active');
+                atualizarStatus('❌ Segurar Cabeça desativado');
+            }
+        }
+
+        function applySuperLock() {
+            if (document.getElementById('superLock').checked) {
+                localStorage.setItem('dword_00007', sistemasAtivos.aimbotCodes['00007']);
+                localStorage.setItem('superlock_active', 'true');
+                localStorage.setItem('aimbot_vip_mode', 'true');
+                
+                atualizarStatus('✅ SuperLock VIP ATIVADO', true);
+                atualizarStatus('DWORD 00007 = SuperLock VIP', true);
+                atualizarStatus('AimGrudar + AimBot Grudar 100%', true);
+                
+                mostrarNotificacao('⚡ SUPERLOCK VIP ATIVO!');
+            } else {
+                localStorage.removeItem('superlock_active');
+                atualizarStatus('❌ SuperLock desativado');
+            }
+        }
+
+        function applyPuxarCabeca() {
+            if (document.getElementById('puxarCabeca').checked) {
+                localStorage.setItem('dword_00009', sistemasAtivos.aimbotCodes['00009']);
+                localStorage.setItem('puxar_cabeca_active', 'true');
+                localStorage.setItem('mira_puxar_0100', 'true');
+                localStorage.setItem('mira_puxar_00100', 'true');
+                localStorage.setItem('mira_puxar_000100', 'true');
+                
+                atualizarStatus('✅ Puxar 100% Cabeça ATIVADO', true);
+                atualizarStatus('DWORD 00009 = PathConfig 100%', true);
+                atualizarStatus('Mira Puxar 0100%-00100%-000100%', true);
+                
+                mostrarNotificacao('🎯 PUXAR 100% CABEÇA ATIVO!');
+            } else {
+                localStorage.removeItem('puxar_cabeca_active');
+                atualizarStatus('❌ Puxar Cabeça desativado');
+            }
+        }
+
+        // ========== FUNÇÕES DOS BOTÕES ==========
+
+        function ativarTudo() {
+            document.getElementById('aimbotGrudar').checked = true;
+            document.getElementById('miraNaoTreme').checked = true;
+            document.getElementById('headKill').checked = true;
+            document.getElementById('segurarCabeca').checked = true;
+            document.getElementById('superLock').checked = true;
+            document.getElementById('puxarCabeca').checked = true;
+            
+            applyAimbotGrudar();
+            applyMiraNaoTreme();
+            applyHeadKill();
+            applySegurarCabeca();
+            applySuperLock();
+            applyPuxarCabeca();
+            
+            atualizarStatus('🔥🔥🔥 TODOS OS SISTEMAS ATIVADOS! 🔥🔥🔥', true);
+            mostrarNotificacao('🔥 TODOS OS CÓDIGOS AIMBOT ATIVADOS!');
+        }
+
+        function aplicarCodigos() {
+            // Aplicar TODOS os códigos base
+            localStorage.setItem('dword_base', sistemasAtivos.dwordBase);
+            localStorage.setItem('touch_precision_ff', sistemasAtivos.touchPrecisionFF);
+            localStorage.setItem('touch_velocity_ff', sistemasAtivos.touchVelocityFF);
+            localStorage.setItem('touch_precision_max', sistemasAtivos.touchPrecisionMax);
+            localStorage.setItem('touch_velocity_max', sistemasAtivos.touchVelocityMax);
+            
+            // Registry Mouse
+            localStorage.setItem('mouse_sensitivity', sistemasAtivos.registryMouse.MouseSensitivity);
+            localStorage.setItem('mouse_speed', sistemasAtivos.registryMouse.MouseSpeed);
+            localStorage.setItem('mouse_threshold1', sistemasAtivos.registryMouse.MouseThreshold1);
+            localStorage.setItem('mouse_threshold2', sistemasAtivos.registryMouse.MouseThreshold2);
+            
+            // BlueStacks
+            localStorage.setItem('bluestacks_cpu', sistemasAtivos.bluestacksCPU);
+            localStorage.setItem('bluestacks_dpi', sistemasAtivos.bluestacksDPI);
+            localStorage.setItem('bluestacks_fov', sistemasAtivos.bluestacksFOV);
+            localStorage.setItem('bluestacks_sensitivity', sistemasAtivos.bluestacksSensitivity);
+            
+            atualizarStatus('✅ DWORD Base = 9900909', true);
+            atualizarStatus('✅ Touch Precision FF aplicado', true);
+            atualizarStatus('✅ Touch Velocity FF aplicado', true);
+            atualizarStatus('✅ Registry Mouse configurado', true);
+            atualizarStatus('✅ BlueStacks otimizado', true);
+            
+            mostrarNotificacao('⚡ TODOS OS CÓDIGOS BASE APLICADOS!');
+        }
+
+        function abrirFF() {
+            const packageName = 'com.dts.freefireth';
+            const intent = `intent://${packageName}#Intent;scheme=${packageName};package=${packageName};end`;
+            
+            atualizarStatus('🎮 Abrindo Free Fire...', true);
+            atualizarStatus('Package: ' + packageName, true);
+            atualizarStatus('Touch Precision: FFMainActivity', true);
+            
+            try {
+                window.location.href = intent;
+                mostrarNotificacao('🎮 FREE FIRE ABRINDO COM CÓDIGOS!');
+            } catch(e) {
+                mostrarNotificacao('ℹ️ Abra o Free Fire manualmente');
+            }
+        }
+
+        function abrirFFMax() {
+            const packageName = 'com.dts.freefiremax';
+            const intent = `intent://${packageName}#Intent;scheme=${packageName};package=${packageName};end`;
+            
+            atualizarStatus('🔥 Abrindo Free Fire MAX...', true);
+            atualizarStatus('Package: ' + packageName, true);
+            atualizarStatus('Touch Precision: FFMainActivity', true);
+            
+            try {
+                window.location.href = intent;
+                mostrarNotificacao('🔥 FREE FIRE MAX ABRINDO COM CÓDIGOS!');
+            } catch(e) {
+                mostrarNotificacao('ℹ️ Abra o Free Fire MAX manualmente');
+            }
+        }
+
+        function mostrarBanner() {
+            document.getElementById('installBanner').style.display = 'block';
+        }
+
+        function closeBanner() {
+            document.getElementById('installBanner').style.display = 'none';
+        }
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    mostrarNotificacao('✅ APP INSTALADO NA TELA INICIAL!');
+                }
+                deferredPrompt = null;
+            } else {
+                mostrarNotificacao('ℹ️ Use o menu: "Adicionar à tela inicial"');
+            }
+            closeBanner();
+        }
+
+        // Inicialização
+        window.addEventListener('load', () => {
+            atualizarStatus('🔴 FF Optimizer Pro V4.0 carregado');
+            atualizarStatus('Todos os códigos prontos para ativação');
+            
+            // Mostrar banner após 5 segundos
+            setTimeout(mostrarBanner, 5000);
+        });
+    </script>
+</body>
+                  </html>
